@@ -11,3 +11,9 @@ dev_dependencies:
   build_runner:
 
 ```
+
+## 実行コマンド
+
+```
+flutter pub run build_runner build --delete-conflicting-outputs
+```
