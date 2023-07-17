@@ -2,7 +2,7 @@
 
 ## pubspec.yaml
 
-```
+```pubspec.yaml
 dependencies:
   freezed_annotation:
 
