@@ -14,6 +14,6 @@ dev_dependencies:
 
 ## 実行コマンド
 
-```
+```zsh
 flutter pub run build_runner build --delete-conflicting-outputs
 ```
