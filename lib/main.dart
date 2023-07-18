@@ -3,114 +3,56 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freezed_example/abc_list.dart';
 import 'package:freezed_example/fish.dart';
 
-// メイン関数
 void main() {
-  const app = MaterialApp(home: Home());
-  const scope = ProviderScope(child: app);
-  runApp(scope);
+  runApp(const ProviderScope(child: MaterialApp(home: Home())));
 }
 
-// 魚データの状態管理
-final fishProvider = StateProvider((ref) {
-  return const Fish(
-    name: 'マグロ',
-    size: 200,
-    price: 300,
-  );
-});
+class FishNotifier extends StateNotifier<Fish> {
+  FishNotifier() : super(const Fish(name: 'マグロ', size: 200, price: 300));
 
-// ABCリストの状態管理
-final abcListProvider = StateProvider((ref) {
-  return AbcList([
-    'A',
-    'B',
-    'C',
-  ]);
-});
+  void updatePrice() {
+    state = state.copyWith(price: 500);
+  }
+}
 
-// ホーム画面
+class AbcListNotifier extends StateNotifier<AbcList> {
+  AbcListNotifier() : super(AbcList(['A', 'B', 'C']));
+
+  void addValue(String value) {
+    state = state.copyWith(values: state.values + [value]);
+  }
+}
+
+final fishProvider = StateNotifierProvider<FishNotifier, Fish>((ref) => FishNotifier());
+final abcListProvider = StateNotifierProvider<AbcListNotifier, AbcList>((ref) => AbcListNotifier());
+
 class Home extends ConsumerWidget {
-  const Home({super.key});
+  const Home({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // 魚データ
     final fish = ref.watch(fishProvider);
-    // ABCリスト
     final abcList = ref.watch(abcListProvider);
 
-    // 名前テキスト
-    final nameText = Text(
-      '名前: ${fish.name}',
-    );
-
-    // 大きさテキスト
-    final sizeText = Text(
-      '大きさ: ${fish.size} cm',
-    );
-
-    // 値段テキスト
-    final priceText = Text(
-      '値段: ${fish.price} 万円',
-    );
-
-    // ABCリストテキスト
-    final abcListText = Text(
-      'ABCリスト: $abcList',
-    );
-
-    // ボタン
-    final button = ElevatedButton(
-      onPressed: () => onPressed(ref),
-      child: const Text('変更する'),
-    );
-
-    // 縦に並べるカラム
-    final column = Column(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        nameText,
-        sizeText,
-        priceText,
-        abcListText,
-        button,
-      ],
-    );
-
-    // 画面の真ん中にカラムを置く
     return Scaffold(
       body: Center(
-        child: column,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            Text('名前: ${fish.name}'),
+            Text('大きさ: ${fish.size} cm'),
+            Text('値段: ${fish.price} 万円'),
+            Text('ABCリスト: $abcList'),
+            ElevatedButton(
+              onPressed: () {
+                ref.read(fishProvider.notifier).updatePrice();
+                ref.read(abcListProvider.notifier).addValue('D');
+              },
+              child: const Text('変更する'),
+            ),
+          ],
+        ),
       ),
     );
-  }
-
-  // ボタンを押したときの関数
-  void onPressed(WidgetRef ref) {
-    // 今画面に出ている魚
-    final fish = ref.read(fishProvider);
-
-    // 入れ物ごと変えた 新しい魚
-    final newFish = fish.copyWith(
-      // 値段は 500 にする
-      price: 500,
-    );
-
-    // 画面を変更する
-    ref.read(fishProvider.notifier).state = newFish;
-
-    // --- --- --- ---
-
-    // 今画面に出ているABCリスト
-    final abcList = ref.read(abcListProvider);
-
-    // 入れ物ごと変えた 新しいABCリスト
-    final newAbcList = abcList.copyWith(
-      // D を追加する
-      values: abcList.values + ['D'],
-    );
-
-    // 画面を変更する
-    ref.read(abcListProvider.notifier).state = newAbcList;
   }
 }
