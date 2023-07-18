@@ -25,49 +25,46 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  Fish fish = Fish(
-    name: 'マグロ',
-    size: 200,
-    price: 300,
-  );
+  late Fish fish;
+  late AbcList abcList;
 
-  AbcList abcList = AbcList([
-    'A',
-    'B',
-    'C',
-  ]);
+  @override
+  void initState() {
+    super.initState();
+    fish = Fish(
+      name: 'マグロ',
+      size: 200,
+      price: 300,
+    );
+    abcList = AbcList([
+      'A',
+      'B',
+      'C',
+    ]);
+  }
 
   @override
   Widget build(BuildContext context) {
-    final nameText = Text('名前: ${fish.name}');
-    final sizeText = Text('大きさ: ${fish.size} cm');
-    final priceText = Text('値段: ${fish.price} 万円');
-    final abcListText = Text('ABCリスト: ${abcList.values.join(', ')}');
-
-    final button = ElevatedButton(
-      onPressed: onPressed,
-      child: const Text('変更する'),
-    );
-
-    final column = Column(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        nameText,
-        sizeText,
-        priceText,
-        abcListText,
-        button,
-      ],
-    );
-
     return Scaffold(
       body: Center(
-        child: column,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            Text('名前: ${fish.name}'),
+            Text('大きさ: ${fish.size} cm'),
+            Text('値段: ${fish.price} 万円'),
+            Text('ABCリスト: ${abcList.values.join(', ')}'),
+            ElevatedButton(
+              onPressed: updateFishAndAbcList,
+              child: const Text('変更する'),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  void onPressed() {
+  void updateFishAndAbcList() {
     setState(() {
       fish = fish.copyWith(price: 500);
       abcList = abcList.copyWith(values: abcList.values + ['D']);

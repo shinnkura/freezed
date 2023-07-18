@@ -4,26 +4,11 @@ import 'package:freezed_example/No_freezed/abc_list.dart';
 import 'package:freezed_example/No_freezed/fish.dart';
 
 void main() {
-  const app = MaterialApp(home: Home());
-  const scope = ProviderScope(child: app);
-  runApp(scope);
+  runApp(const ProviderScope(child: MaterialApp(home: Home())));
 }
 
-final fishProvider = StateProvider((ref) {
-  return Fish(
-    name: 'マグロ',
-    size: 200,
-    price: 300,
-  );
-});
-
-final abcListProvider = StateProvider((ref) {
-  return AbcList([
-    'A',
-    'B',
-    'C',
-  ]);
-});
+final fishProvider = StateProvider((ref) => Fish(name: 'マグロ', size: 200, price: 300));
+final abcListProvider = StateProvider((ref) => AbcList(['A', 'B', 'C']));
 
 class Home extends ConsumerWidget {
   const Home({Key? key}) : super(key: key);
@@ -33,40 +18,40 @@ class Home extends ConsumerWidget {
     final fish = ref.watch(fishProvider);
     final abcList = ref.watch(abcListProvider);
 
-    final nameText = Text('名前: ${fish.name}');
-    final sizeText = Text('大きさ: ${fish.size} cm');
-    final priceText = Text('値段: ${fish.price} 万円');
-    final abcListText = Text('ABCリスト: ${abcList.values.join(', ')}');
-
-    final button = ElevatedButton(
-      onPressed: () => onPressed(ref),
-      child: const Text('変更する'),
-    );
-
-    final column = Column(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        nameText,
-        sizeText,
-        priceText,
-        abcListText,
-        button,
-      ],
-    );
-
     return Scaffold(
       body: Center(
-        child: column,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            _buildText('名前: ${fish.name}'),
+            _buildText('大きさ: ${fish.size} cm'),
+            _buildText('値段: ${fish.price} 万円'),
+            _buildText('ABCリスト: ${abcList.values.join(', ')}'),
+            ElevatedButton(
+              onPressed: () => _onPressed(ref),
+              child: const Text('変更する'),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  void onPressed(WidgetRef ref) {
-    final fish = ref.watch(fishProvider);
+  Widget _buildText(String text) => Text(text);
+
+  void _onPressed(WidgetRef ref) {
+    _updateFish(ref);
+    _updateAbcList(ref);
+  }
+
+  void _updateFish(WidgetRef ref) {
+    final fish = ref.read(fishProvider.notifier).state;
     final newFish = fish.copyWith(price: 500);
     ref.read(fishProvider.notifier).state = newFish;
+  }
 
-    final abcList = ref.watch(abcListProvider);
+  void _updateAbcList(WidgetRef ref) {
+    final abcList = ref.read(abcListProvider.notifier).state;
     final newAbcList = abcList.copyWith(values: abcList.values + ['D']);
     ref.read(abcListProvider.notifier).state = newAbcList;
   }
